@@ -9,7 +9,7 @@ class AppConfig {
   // - For Android emulator: Use 'http://10.0.2.2:8085/api/v1'
   // - For iOS simulator: Use 'http://localhost:8085/api/v1'
   // - For production: Use your production API URL
-  static const String baseUrl = 'http://10.0.2.2:8085/api/v1';
+  static const String baseUrl = 'http://192.168.0.9:8085/api/v1';
 
   // API Security
   static const String signatureKey = 'nauUBioyuwbSdqwyhfd';
