@@ -2,7 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/user.dart';
-import '../../domain/usecases/get_current_user_usecase.dart';
+import '../../domain/usecases/check_auth_status_usecase.dart';
+import '../../domain/usecases/get_user_profile_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -15,17 +16,20 @@ part 'auth_bloc.freezed.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
-  final GetCurrentUserUseCase getCurrentUserUseCase;
+  final GetUserProfileUseCase getUserProfileUseCase;
+  final CheckAuthStatusUseCase checkAuthStatusUseCase;
   final LogoutUseCase logoutUseCase;
 
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
-    required this.getCurrentUserUseCase,
+    required this.getUserProfileUseCase,
+    required this.checkAuthStatusUseCase,
     required this.logoutUseCase,
   }) : super(const AuthState.initial()) {
     on<AuthEventLogin>(_onLogin);
     on<AuthEventRegister>(_onRegister);
+    on<AuthEventGetUserProfile>(_onGetUserProfile);
     on<AuthEventCheckStatus>(_onCheckStatus);
     on<AuthEventLogout>(_onLogout);
   }
@@ -75,13 +79,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// Handle get user profile event
+  Future<void> _onGetUserProfile(
+    AuthEventGetUserProfile event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthState.loading());
+
+    final result = await getUserProfileUseCase(NoParams());
+
+    result.fold(
+      (failure) => emit(AuthState.error(failure.toString())),
+      (user) => emit(AuthState.profileLoaded(user)),
+    );
+  }
+
   Future<void> _onCheckStatus(
     AuthEventCheckStatus event,
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthState.loading());
 
-    final result = await getCurrentUserUseCase(NoParams());
+    final result = await checkAuthStatusUseCase(NoParams());
 
     result.fold(
       (failure) => emit(const AuthState.unauthenticated()),

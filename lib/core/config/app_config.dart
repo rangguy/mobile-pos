@@ -9,7 +9,7 @@ class AppConfig {
   // - For Android emulator: Use 'http://10.0.2.2:8085/api/v1'
   // - For iOS simulator: Use 'http://localhost:8085/api/v1'
   // - For production: Use your production API URL
-  static const String baseUrl = 'http://192.168.0.9:8085/api/v1';
+  static const String baseUrl = 'https://backend-pos.ranggadwimah.xyz/api/v1';
 
   // API Security
   static const String signatureKey = 'nauUBioyuwbSdqwyhfd';
@@ -17,7 +17,6 @@ class AppConfig {
   // API Headers
   static const String headerApiKey = 'x-api-key';
   static const String headerRequestAt = 'x-request-at';
-  static const String headerServiceName = 'x-service-name';
   static const String headerAuthorization = 'Authorization';
 
   // Storage Keys

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../bloc/product_bloc.dart';
 import 'product_detail_page.dart';
+import 'product_form_page.dart';
 
 class BarcodeScannerPage extends StatefulWidget {
   const BarcodeScannerPage({super.key});
@@ -17,6 +18,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   );
 
   bool _isProcessing = false;
+  String? _lastScannedCode;
 
   @override
   void dispose() {
@@ -35,6 +37,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
     setState(() {
       _isProcessing = true;
+      _lastScannedCode = code; // Store scanned code
     });
 
     // Search for product by code
@@ -70,14 +73,19 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
               );
             },
             error: (message) {
-              // Show error and reset processing state
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                  backgroundColor: Colors.red,
-                  duration: const Duration(seconds: 3),
-                ),
-              );
+              // Show dialog for product not found
+              if (message.toLowerCase().contains('not found')) {
+                _showProductNotFoundDialog(context);
+              } else {
+                // Show error snackbar for other errors
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
               setState(() {
                 _isProcessing = false;
               });
@@ -139,6 +147,57 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _showProductNotFoundDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            SizedBox(width: 12),
+            Text('Product Not Found'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                'The scanned barcode "${_lastScannedCode ?? ''}" was not found in the system.'),
+            const SizedBox(height: 16),
+            const Text('What would you like to do?'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop(); // Close dialog
+              Navigator.of(context).pop(); // Go back to product list
+            },
+            child: const Text('Go Back to Products'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop(); // Close dialog
+              // Navigate to product form with scanned code
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<ProductBloc>(),
+                    child: ProductFormPage(scannedCode: _lastScannedCode),
+                  ),
+                ),
+              );
+            },
+            child: const Text('Add New Product'),
+          ),
+        ],
       ),
     );
   }

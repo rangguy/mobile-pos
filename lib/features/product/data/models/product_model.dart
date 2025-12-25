@@ -7,12 +7,12 @@ part 'product_model.g.dart';
 @JsonSerializable()
 class ProductModel {
   final String uuid;
-  final String code;
+  final String? code;
   final String name;
   @JsonKey(name: 'price_buy')
-  final double priceBuy;
+  final int priceBuy;
   @JsonKey(name: 'price_sale')
-  final double priceSale;
+  final int priceSale;
   final int stock;
   final String unit;
   @JsonKey(name: 'created_at')

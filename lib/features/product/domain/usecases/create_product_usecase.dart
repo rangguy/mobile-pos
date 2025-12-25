@@ -26,15 +26,15 @@ class CreateProductUseCase implements UseCase<Product, CreateProductParams> {
 
 /// Create product parameters
 class CreateProductParams extends Equatable {
-  final String code;
+  final String? code;
   final String name;
-  final double priceBuy;
-  final double priceSale;
+  final int priceBuy;
+  final int priceSale;
   final int stock;
   final String unit;
 
   const CreateProductParams({
-    required this.code,
+    this.code,
     required this.name,
     required this.priceBuy,
     required this.priceSale,

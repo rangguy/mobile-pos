@@ -80,10 +80,10 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<Failure, Product>> createProduct({
-    required String code,
+    String? code,
     required String name,
-    required double priceBuy,
-    required double priceSale,
+    required int priceBuy,
+    required int priceSale,
     required int stock,
     required String unit,
   }) async {
@@ -114,10 +114,10 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<Either<Failure, Product>> updateProduct({
     required String uuid,
-    required String code,
+    String? code,
     required String name,
-    required double priceBuy,
-    required double priceSale,
+    required int priceBuy,
+    required int priceSale,
     required int stock,
     required String unit,
   }) async {

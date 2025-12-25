@@ -102,6 +102,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, User>> getUserProfile() async {
+    try {
+      final userModel = await remoteDataSource.getUserProfile();
+      return Right(userModel.toEntity());
+    } on DioException catch (e) {
+      return Left(_handleDioError(e));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> logout() async {
     try {
       await localDataSource.deleteToken();

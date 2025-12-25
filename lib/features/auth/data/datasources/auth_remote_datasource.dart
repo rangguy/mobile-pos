@@ -4,6 +4,7 @@ import '../../../../core/constants/api_constants.dart';
 import '../models/auth_response_model.dart';
 import '../models/login_request_model.dart';
 import '../models/register_request_model.dart';
+import '../models/user_model.dart';
 
 part 'auth_remote_datasource.g.dart';
 
@@ -22,6 +23,10 @@ abstract class AuthRemoteDataSource {
   /// Register
   @POST(ApiConstants.register)
   Future<AuthResponseModel> register(@Body() RegisterRequestModel request);
+
+  /// Get user profile
+  @GET('/auth/user')
+  Future<UserModel> getUserProfile();
 
   /// Get current user
   @GET(ApiConstants.getCurrentUser)

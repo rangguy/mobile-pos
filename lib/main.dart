@@ -36,14 +36,13 @@ class MyApp extends StatelessWidget {
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             return state.when(
-              initial: () => const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              ),
+              initial: () => const LoginPage(),
               loading: () => const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               ),
               authenticated: (_) => const ProductListPage(),
-              registerSuccess: (_) => const LoginPage(),
+              registerSuccess: (_) => const ProductListPage(),
+              profileLoaded: (_) => const ProductListPage(),
               unauthenticated: () => const LoginPage(),
               error: (_) => const LoginPage(),
             );

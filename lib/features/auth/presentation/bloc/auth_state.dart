@@ -7,6 +7,7 @@ class AuthState with _$AuthState {
   const factory AuthState.loading() = AuthStateLoading;
   const factory AuthState.authenticated(User user) = AuthStateAuthenticated;
   const factory AuthState.registerSuccess(User user) = AuthStateRegisterSuccess;
+  const factory AuthState.profileLoaded(User user) = AuthStateProfileLoaded;
   const factory AuthState.unauthenticated() = AuthStateUnauthenticated;
   const factory AuthState.error(String message) = AuthStateError;
 }

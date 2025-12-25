@@ -55,14 +55,21 @@ class _RegisterPageState extends State<RegisterPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           state.whenOrNull(
-            registerSuccess: (_) {
+            registerSuccess: (user) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Registration successful! Please login.'),
+                SnackBar(
+                  content: Text('User ${user.name} registered successfully!'),
                   backgroundColor: Colors.green,
                 ),
               );
-              Navigator.pop(context);
+              // Clear the form after successful registration
+              _nameController.clear();
+              _usernameController.clear();
+              _emailController.clear();
+              _phoneController.clear();
+              _passwordController.clear();
+              _confirmPasswordController.clear();
+              // Stay on the page - don't navigate away
             },
             error: (message) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -83,8 +90,33 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Form(
                 key: _formKey,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const Icon(
+                      Icons.person_add,
+                      size: 80,
+                      color: Colors.blue,
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Register New User',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Create a new user account for your team',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
                     TextFormField(
                       controller: _nameController,
                       decoration: const InputDecoration(

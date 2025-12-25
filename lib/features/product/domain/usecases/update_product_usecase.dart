@@ -28,16 +28,16 @@ class UpdateProductUseCase implements UseCase<Product, UpdateProductParams> {
 /// Update product parameters
 class UpdateProductParams extends Equatable {
   final String uuid;
-  final String code;
+  final String? code;
   final String name;
-  final double priceBuy;
-  final double priceSale;
+  final int priceBuy;
+  final int priceSale;
   final int stock;
   final String unit;
 
   const UpdateProductParams({
     required this.uuid,
-    required this.code,
+    this.code,
     required this.name,
     required this.priceBuy,
     required this.priceSale,
@@ -46,5 +46,6 @@ class UpdateProductParams extends Equatable {
   });
 
   @override
-  List<Object?> get props => [uuid, code, name, priceBuy, priceSale, stock, unit];
+  List<Object?> get props =>
+      [uuid, code, name, priceBuy, priceSale, stock, unit];
 }

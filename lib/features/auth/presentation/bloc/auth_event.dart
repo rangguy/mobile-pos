@@ -17,6 +17,8 @@ class AuthEvent with _$AuthEvent {
     required String email,
   }) = AuthEventRegister;
 
+  const factory AuthEvent.getUserProfile() = AuthEventGetUserProfile;
+
   const factory AuthEvent.checkStatus() = AuthEventCheckStatus;
 
   const factory AuthEvent.logout() = AuthEventLogout;

@@ -21,6 +21,9 @@ abstract class AuthRepository {
     required String email,
   });
 
+  /// Get user profile
+  Future<Either<Failure, User>> getUserProfile();
+
   /// Get current authenticated user
   Future<Either<Failure, User>> getCurrentUser();
 

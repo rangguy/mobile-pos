@@ -21,10 +21,10 @@ abstract class ProductRepository {
 
   /// Create a new product
   Future<Either<Failure, Product>> createProduct({
-    required String code,
+    String? code,
     required String name,
-    required double priceBuy,
-    required double priceSale,
+    required int priceBuy,
+    required int priceSale,
     required int stock,
     required String unit,
   });
@@ -32,10 +32,10 @@ abstract class ProductRepository {
   /// Update an existing product
   Future<Either<Failure, Product>> updateProduct({
     required String uuid,
-    required String code,
+    String? code,
     required String name,
-    required double priceBuy,
-    required double priceSale,
+    required int priceBuy,
+    required int priceSale,
     required int stock,
     required String unit,
   });

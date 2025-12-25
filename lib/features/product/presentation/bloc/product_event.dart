@@ -9,20 +9,20 @@ class ProductEvent with _$ProductEvent {
       ProductEventSearchByCode;
 
   const factory ProductEvent.create({
-    required String code,
+    String? code,
     required String name,
-    required double priceBuy,
-    required double priceSale,
+    required int priceBuy,
+    required int priceSale,
     required int stock,
     required String unit,
   }) = ProductEventCreate;
 
   const factory ProductEvent.update({
     required String uuid,
-    required String code,
+    String? code,
     required String name,
-    required double priceBuy,
-    required double priceSale,
+    required int priceBuy,
+    required int priceSale,
     required int stock,
     required String unit,
   }) = ProductEventUpdate;

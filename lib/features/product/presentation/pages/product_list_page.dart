@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/pages/profile_page.dart';
+import '../../../auth/presentation/pages/register_page.dart';
 import '../../domain/entities/product.dart';
 import '../bloc/product_bloc.dart';
 import 'barcode_scanner_page.dart';
 import 'product_detail_page.dart';
+import 'product_form_page.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -29,6 +32,89 @@ class _ProductListPageState extends State<ProductListPage> {
       appBar: AppBar(
         title: const Text('Products'),
         actions: [
+          // Account icon dropdown menu
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, authState) {
+              return authState.maybeWhen(
+                authenticated: (user) => PopupMenuButton<String>(
+                  icon: const Icon(Icons.account_circle, size: 32),
+                  tooltip: 'Account',
+                  onSelected: (value) {
+                    if (value == 'profile') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<AuthBloc>(),
+                            child: const ProfilePage(),
+                          ),
+                        ),
+                      );
+                    } else if (value == 'register') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<AuthBloc>(),
+                            child: const RegisterPage(),
+                          ),
+                        ),
+                      );
+                    } else if (value == 'logout') {
+                      context.read<AuthBloc>().add(const AuthEvent.logout());
+                    }
+                  },
+                  itemBuilder: (context) {
+                    final items = <PopupMenuEntry<String>>[
+                      const PopupMenuItem(
+                        value: 'profile',
+                        child: Row(
+                          children: [
+                            Icon(Icons.person),
+                            SizedBox(width: 12),
+                            Text('Profile'),
+                          ],
+                        ),
+                      ),
+                    ];
+
+                    // Only show Register option for owner role
+                    if (user.role == 'owner') {
+                      items.add(
+                        const PopupMenuItem(
+                          value: 'register',
+                          child: Row(
+                            children: [
+                              Icon(Icons.person_add),
+                              SizedBox(width: 12),
+                              Text('Register New User'),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    items.addAll([
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(
+                        value: 'logout',
+                        child: Row(
+                          children: [
+                            Icon(Icons.logout, color: Colors.red),
+                            SizedBox(width: 12),
+                            Text('Logout', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ]);
+
+                    return items;
+                  },
+                ),
+                orElse: () => const SizedBox.shrink(),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
@@ -56,8 +142,11 @@ class _ProductListPageState extends State<ProductListPage> {
             loading: () => const Center(child: CircularProgressIndicator()),
             loaded: (products) => _buildProductList(products),
             productFound: (product) => _buildProductList([product]),
-            operationSuccess: (message, product) =>
-                _buildProductList([product]),
+            operationSuccess: (message, product) {
+              // Reload products after create/update
+              context.read<ProductBloc>().add(const ProductEvent.loadAll());
+              return const Center(child: CircularProgressIndicator());
+            },
             deleteSuccess: (_) {
               // Reload products after delete
               context.read<ProductBloc>().add(const ProductEvent.loadAll());
@@ -85,20 +174,42 @@ class _ProductListPageState extends State<ProductListPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BlocProvider.value(
-                value: context.read<ProductBloc>(),
-                child: const BarcodeScannerPage(),
-              ),
-            ),
-          );
-        },
-        icon: const Icon(Icons.qr_code_scanner),
-        label: const Text('Scan Barcode'),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'add_product',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<ProductBloc>(),
+                    child: const ProductFormPage(),
+                  ),
+                ),
+              );
+            },
+            child: const Icon(Icons.add),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton.extended(
+            heroTag: 'scan_barcode',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<ProductBloc>(),
+                    child: const BarcodeScannerPage(),
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.qr_code_scanner),
+            label: const Text('Scan'),
+          ),
+        ],
       ),
     );
   }
@@ -124,11 +235,11 @@ class _ProductListPageState extends State<ProductListPage> {
             child: ListTile(
               leading: CircleAvatar(
                 child: Text(
-                  product.code.isEmpty
+                  product.code == null || product.code!.isEmpty
                       ? '?'
-                      : product.code.length >= 2
-                          ? product.code.substring(0, 2)
-                          : product.code,
+                      : product.code!.length >= 2
+                          ? product.code!.substring(0, 2)
+                          : product.code!,
                 ),
               ),
               title: Text(
@@ -138,7 +249,7 @@ class _ProductListPageState extends State<ProductListPage> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Code: ${product.code}'),
+                  Text('Code: ${product.code ?? 'N/A'}'),
                   Text('Price: ${_currencyFormat.format(product.priceSale)}'),
                   Text('Stock: ${product.stock} ${product.unit}'),
                 ],

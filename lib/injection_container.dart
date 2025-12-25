@@ -1,12 +1,17 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'core/config/app_config.dart';
+import 'core/network/api_interceptor.dart';
 import 'core/network/dio_client.dart';
 import 'features/auth/data/datasources/auth_local_datasource.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/usecases/check_auth_status_usecase.dart';
 import 'features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'features/auth/domain/usecases/get_user_by_uuid_usecase.dart';
+import 'features/auth/domain/usecases/get_user_profile_usecase.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
 import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/domain/usecases/register_usecase.dart';
@@ -62,10 +67,13 @@ Future<void> initializeDependencies() async {
     () => ProductRepositoryImpl(remoteDataSource: sl()),
   );
 
-  // Use cases - Auth
+  // Auth Use Cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserProfileUseCase(sl()));
+  sl.registerLazySingleton(() => CheckAuthStatusUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserByUuidUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
 
   // Use cases - Product
@@ -75,12 +83,13 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => UpdateProductUseCase(sl()));
   sl.registerLazySingleton(() => DeleteProductUseCase(sl()));
 
-  // BLoCs
+  // Auth BLoC
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
       registerUseCase: sl(),
-      getCurrentUserUseCase: sl(),
+      getUserProfileUseCase: sl(),
+      checkAuthStatusUseCase: sl(),
       logoutUseCase: sl(),
     ),
   );
