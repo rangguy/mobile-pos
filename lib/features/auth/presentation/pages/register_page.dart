@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final bool showAppBar;
+
+  const RegisterPage({super.key, this.showAppBar = true});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -49,19 +51,39 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: const Text('Register'),
+              automaticallyImplyLeading: false,
+            )
+          : null,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           state.whenOrNull(
             registerSuccess: (user) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('User ${user.name} registered successfully!'),
-                  backgroundColor: Colors.green,
+              // Show success dialog instead of snackbar
+              showDialog(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green, size: 32),
+                      SizedBox(width: 12),
+                      Text('Success'),
+                    ],
+                  ),
+                  content: Text(
+                    'User "${user.name}" has been registered successfully!',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      child: const Text('OK'),
+                    ),
+                  ],
                 ),
               );
+
               // Clear the form after successful registration
               _nameController.clear();
               _usernameController.clear();
@@ -69,7 +91,6 @@ class _RegisterPageState extends State<RegisterPage> {
               _phoneController.clear();
               _passwordController.clear();
               _confirmPasswordController.clear();
-              // Stay on the page - don't navigate away
             },
             error: (message) {
               ScaffoldMessenger.of(context).showSnackBar(

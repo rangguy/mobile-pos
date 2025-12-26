@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final bool showAppBar;
+
+  const ProfilePage({super.key, this.showAppBar = true});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -13,17 +15,20 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch user profile when page loads
-    context.read<AuthBloc>().add(const AuthEvent.getUserProfile());
+    // Only fetch profile if we're not already in an authenticated state with user data
+    // This prevents unnecessary API calls when ProfilePage is in IndexedStack
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        elevation: 0,
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: const Text('Profile'),
+              elevation: 0,
+              automaticallyImplyLeading: false,
+            )
+          : null,
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           return state.when(
@@ -180,7 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: Colors.grey.shade300,
+          color: Theme.of(context).colorScheme.outlineVariant,
           width: 1,
         ),
       ),
@@ -191,12 +196,12 @@ class _ProfilePageState extends State<ProfilePage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
                 size: 24,
               ),
             ),
@@ -209,7 +214,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     label,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

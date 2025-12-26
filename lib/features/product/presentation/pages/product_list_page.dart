@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/pages/profile_page.dart';
-import '../../../auth/presentation/pages/register_page.dart';
 import '../../domain/entities/product.dart';
 import '../bloc/product_bloc.dart';
 import 'barcode_scanner_page.dart';
@@ -11,7 +9,9 @@ import 'product_detail_page.dart';
 import 'product_form_page.dart';
 
 class ProductListPage extends StatefulWidget {
-  const ProductListPage({super.key});
+  final bool showAppBar;
+
+  const ProductListPage({super.key, this.showAppBar = true});
 
   @override
   State<ProductListPage> createState() => _ProductListPageState();
@@ -29,100 +29,44 @@ class _ProductListPageState extends State<ProductListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Products'),
-        actions: [
-          // Account icon dropdown menu
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, authState) {
-              return authState.maybeWhen(
-                authenticated: (user) => PopupMenuButton<String>(
-                  icon: const Icon(Icons.account_circle, size: 32),
-                  tooltip: 'Account',
-                  onSelected: (value) {
-                    if (value == 'profile') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BlocProvider.value(
-                            value: context.read<AuthBloc>(),
-                            child: const ProfilePage(),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: const Text('Products'),
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  tooltip: 'Logout',
+                  onPressed: () async {
+                    final shouldLogout = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Confirm Logout'),
+                        content: const Text('Are you sure you want to logout?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancel'),
                           ),
-                        ),
-                      );
-                    } else if (value == 'register') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BlocProvider.value(
-                            value: context.read<AuthBloc>(),
-                            child: const RegisterPage(),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
+                            child: const Text('Logout'),
                           ),
-                        ),
-                      );
-                    } else if (value == 'logout') {
+                        ],
+                      ),
+                    );
+
+                    if (shouldLogout == true && context.mounted) {
                       context.read<AuthBloc>().add(const AuthEvent.logout());
                     }
                   },
-                  itemBuilder: (context) {
-                    final items = <PopupMenuEntry<String>>[
-                      const PopupMenuItem(
-                        value: 'profile',
-                        child: Row(
-                          children: [
-                            Icon(Icons.person),
-                            SizedBox(width: 12),
-                            Text('Profile'),
-                          ],
-                        ),
-                      ),
-                    ];
-
-                    // Only show Register option for owner role
-                    if (user.role == 'owner') {
-                      items.add(
-                        const PopupMenuItem(
-                          value: 'register',
-                          child: Row(
-                            children: [
-                              Icon(Icons.person_add),
-                              SizedBox(width: 12),
-                              Text('Register New User'),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                    items.addAll([
-                      const PopupMenuDivider(),
-                      const PopupMenuItem(
-                        value: 'logout',
-                        child: Row(
-                          children: [
-                            Icon(Icons.logout, color: Colors.red),
-                            SizedBox(width: 12),
-                            Text('Logout', style: TextStyle(color: Colors.red)),
-                          ],
-                        ),
-                      ),
-                    ]);
-
-                    return items;
-                  },
                 ),
-                orElse: () => const SizedBox.shrink(),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthBloc>().add(const AuthEvent.logout());
-            },
-          ),
-        ],
-      ),
+              ],
+            )
+          : null,
       body: BlocConsumer<ProductBloc, ProductState>(
         listener: (context, state) {
           state.whenOrNull(

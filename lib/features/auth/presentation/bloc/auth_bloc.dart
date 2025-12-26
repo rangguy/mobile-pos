@@ -60,6 +60,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthEventRegister event,
     Emitter<AuthState> emit,
   ) async {
+    // Capture the current authenticated user before registration
+    User? currentUser;
+    state.whenOrNull(
+      authenticated: (user) => currentUser = user,
+      profileLoaded: (user) => currentUser = user,
+    );
+
     emit(const AuthState.loading());
 
     final result = await registerUseCase(
@@ -75,7 +82,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.fold(
       (failure) => emit(AuthState.error(failure.toString())),
-      (user) => emit(AuthState.registerSuccess(user)),
+      (newUser) {
+        // Emit registerSuccess with the newly registered user for UI feedback
+        emit(AuthState.registerSuccess(newUser));
+
+        // Immediately restore the current authenticated user to prevent auto-login
+        if (currentUser != null) {
+          emit(AuthState.authenticated(currentUser!));
+        }
+      },
     );
   }
 

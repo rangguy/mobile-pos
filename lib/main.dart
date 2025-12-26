@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'features/main/presentation/pages/main_scaffold.dart';
 import 'features/product/presentation/bloc/product_bloc.dart';
-import 'features/product/presentation/pages/product_list_page.dart';
 import 'injection_container.dart';
 
 void main() async {
@@ -40,9 +40,9 @@ class MyApp extends StatelessWidget {
               loading: () => const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               ),
-              authenticated: (_) => const ProductListPage(),
-              registerSuccess: (_) => const ProductListPage(),
-              profileLoaded: (_) => const ProductListPage(),
+              authenticated: (_) => const MainScaffold(),
+              registerSuccess: (_) => const MainScaffold(),
+              profileLoaded: (_) => const MainScaffold(),
               unauthenticated: () => const LoginPage(),
               error: (_) => const LoginPage(),
             );

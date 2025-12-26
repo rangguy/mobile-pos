@@ -64,6 +64,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
         listener: (context, state) {
           state.whenOrNull(
             productFound: (product) {
+              // Reload products so when user returns, the list is ready
+              context.read<ProductBloc>().add(const ProductEvent.loadAll());
               // Navigate to product detail
               Navigator.pushReplacement(
                 context,
@@ -177,6 +179,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop(); // Close dialog
+              // Reload products before going back
+              context.read<ProductBloc>().add(const ProductEvent.loadAll());
               Navigator.of(context).pop(); // Go back to product list
             },
             child: const Text('Go Back to Products'),
